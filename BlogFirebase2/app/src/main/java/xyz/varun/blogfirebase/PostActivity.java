@@ -2,6 +2,7 @@ package xyz.varun.blogfirebase;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,8 @@ import android.widget.ImageButton;
 
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -35,8 +38,9 @@ public class PostActivity extends AppCompatActivity {
     private Uri imguri;
     private static int GALLERY_REQUEST =2;
     private StorageReference storage;
-   // private SpotsDialog dialog;
-    private ProgressDialog dialog;
+    private SpotsDialog spotsDialog;
+    private DatabaseReference databaseReference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +51,14 @@ public class PostActivity extends AppCompatActivity {
         add_title=(EditText)findViewById(R.id.add_title);
         add_desc=(EditText)findViewById(R.id.add_description);
         post_btn=(Button)findViewById(R.id.post_btn);
-       // dialog=new SpotsDialog(this);
-            dialog=new ProgressDialog(this);
+       spotsDialog=new SpotsDialog(this,R.style.Custom);
+
+
+
 
 
         storage= FirebaseStorage.getInstance().getReference();
+        databaseReference= FirebaseDatabase.getInstance().getReference().child("Blog");
 
         add_img_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,20 +80,28 @@ public class PostActivity extends AppCompatActivity {
 
     private void startPosting() {
 
-        dialog.setMessage("Posting");
-        dialog.show();
-        String title_val=add_title.getText().toString().trim();
-        String desc_val=add_desc.getText().toString().trim();
+       //dialog.setMessage("Posting");
+        //dialog.show();
+
+        final String title_val=add_title.getText().toString().trim();
+        final String desc_val=add_desc.getText().toString().trim();
 
         if(!TextUtils.isEmpty(title_val)&&!TextUtils.isEmpty(desc_val) && imguri!=null)
         {
+            spotsDialog.show();
                 StorageReference filepath=storage.child("images").child(random());
                 filepath.putFile(imguri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
                         Uri downloadUrl=taskSnapshot.getDownloadUrl();
-                        dialog.dismiss();
+                        DatabaseReference newPost=databaseReference.push();
+                        newPost.child("Title").setValue(title_val);
+                        newPost.child("Description").setValue(desc_val);
+                        newPost.child("Image").setValue(downloadUrl.toString());
+
+                        spotsDialog.dismiss();
+                        startActivity(new Intent(PostActivity.this,MainActivity.class));
                     }
                 });
         }
@@ -126,7 +141,7 @@ public class PostActivity extends AppCompatActivity {
         int randomLength = generator.nextInt(12);
         char tempChar;
         for (int i = 0; i < randomLength; i++){
-            tempChar = (char) (generator.nextInt(96) + 32);
+            tempChar = (char) (generator.nextInt(96) +26 );
             randomStringBuilder.append(tempChar);
         }
         return randomStringBuilder.toString();

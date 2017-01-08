@@ -1,6 +1,7 @@
 package xyz.varun.blogfirebase;
 
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,8 +18,11 @@ import com.firebase.client.Firebase;
 import com.firebase.client.core.Context;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
+    private DatabaseReference databaseUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +47,16 @@ public class MainActivity extends AppCompatActivity {
         //recyclerView.setHasFixedSize(true);
         databaseReference= FirebaseDatabase.getInstance().getReference().child("Blog");
         databaseReference.keepSynced(true);
+        databaseUsers=FirebaseDatabase.getInstance().getReference().child("Users");
+        databaseUsers.keepSynced(true);
+
         auth=FirebaseAuth.getInstance();
         authStateListener= new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser()== null)
                 {
-                    Intent loginintent=new Intent(MainActivity.this,RegisterActivity.class);
+                    Intent loginintent=new Intent(MainActivity.this,LoginActivity.class);
                     loginintent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(loginintent);
                 }
@@ -57,14 +65,16 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
+        checkUserExists();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
         auth.addAuthStateListener(authStateListener);
 
+        checkUserExists();
 
         FirebaseRecyclerAdapter<Blog,BlogViewHolder> firebaseRecyclerAdapter=new FirebaseRecyclerAdapter<Blog, BlogViewHolder>(Blog.class,
                 R.layout.blogrow,BlogViewHolder.class,databaseReference) {
@@ -79,6 +89,35 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(firebaseRecyclerAdapter);
 
     }
+
+    private void checkUserExists() {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            final String user_id = auth.getCurrentUser().getUid();
+            databaseUsers.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.hasChild(user_id)) {
+
+                        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+        }
+    }
+
+
+
+
+
 
     public static class BlogViewHolder extends RecyclerView.ViewHolder{
             View view;
@@ -118,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainmenu,menu);

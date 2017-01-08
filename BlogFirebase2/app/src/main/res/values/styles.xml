@@ -15,4 +15,25 @@
         <item name="DialogSpotCount">4</item>
     </style>
 
+    <style name="Custom2" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
+        <item name="DialogTitleText">Registering</item>
+        <item name="DialogSpotColor">#D01A6A</item>
+        <item name="DialogSpotCount">4</item>
+    </style>
+
+    <style name="Custom3" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
+        <item name="DialogTitleText">Logging In</item>
+        <item name="DialogSpotColor">#D01A6A</item>
+        <item name="DialogSpotCount">4</item>
+    </style>
+
+    <style name="Custom4" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
+        <item name="DialogTitleText">Finishing Setup</item>
+        <item name="DialogSpotColor">#D01A6A</item>
+        <item name="DialogSpotCount">4</item>
+    </style>
+
 </resources>

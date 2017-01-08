@@ -40,6 +40,8 @@ public class PostActivity extends AppCompatActivity {
     private StorageReference storage;
     private SpotsDialog spotsDialog;
     private DatabaseReference databaseReference;
+    private Uri resultUri;
+
 
 
     @Override
@@ -59,6 +61,7 @@ public class PostActivity extends AppCompatActivity {
 
         storage= FirebaseStorage.getInstance().getReference();
         databaseReference= FirebaseDatabase.getInstance().getReference().child("Blog");
+
 
         add_img_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,11 +89,11 @@ public class PostActivity extends AppCompatActivity {
         final String title_val=add_title.getText().toString().trim();
         final String desc_val=add_desc.getText().toString().trim();
 
-        if(!TextUtils.isEmpty(title_val)&&!TextUtils.isEmpty(desc_val) && imguri!=null)
+        if(!TextUtils.isEmpty(title_val)&&!TextUtils.isEmpty(desc_val) && resultUri!=null)
         {
             spotsDialog.show();
                 StorageReference filepath=storage.child("images").child(random());
-                filepath.putFile(imguri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
@@ -123,7 +126,7 @@ public class PostActivity extends AppCompatActivity {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
+                 resultUri = result.getUri();
                 add_img_btn.setImageURI(resultUri);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

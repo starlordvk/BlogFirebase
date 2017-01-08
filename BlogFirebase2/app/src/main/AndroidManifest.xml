@@ -24,6 +24,10 @@
             android:theme="@style/Base.Theme.AppCompat"/>
         <activity android:name=".RegisterActivity">
         </activity>
+        <activity android:name=".LoginActivity">
+        </activity>
+        <activity android:name=".Account_Setup">
+        </activity>
     </application>
 
 </manifest>

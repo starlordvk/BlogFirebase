@@ -42,7 +42,7 @@ public class RegisterActivity extends AppCompatActivity {
         password=(EditText)findViewById(R.id.password_et);
         register_btn=(Button)findViewById(R.id.register_btn);
         auth=FirebaseAuth.getInstance();
-        spotsDialog=new SpotsDialog(this,"Registering");
+        spotsDialog=new SpotsDialog(this,R.style.Custom2);
         databaseReference= FirebaseDatabase.getInstance().getReference().child("Users");
 
         register_btn.setOnClickListener(new View.OnClickListener() {
